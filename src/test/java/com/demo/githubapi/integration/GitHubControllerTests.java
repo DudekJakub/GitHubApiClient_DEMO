@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -52,5 +54,17 @@ class GitHubControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(HttpStatus.NOT_ACCEPTABLE.value()))
                 .andExpect(jsonPath("$.message").value("No acceptable representation"));
+    }
+
+    @Test
+    void testGetUserNotForkedRepositoriesByUserLogin_withNotExistingUserLogin_shouldReturnNotFound() throws Exception {
+        //When/Then
+        String randomNoneExistentLogin = UUID.randomUUID().toString();
+        mockMvc.perform(get("/api/github/repositories/user/" + randomNoneExistentLogin)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(jsonPath("$.message").value("Given login [" + randomNoneExistentLogin + "] does not exist."));
     }
 }
