@@ -3,6 +3,7 @@ package com.demo.githubapi.service;
 import com.demo.githubapi.exception.GitHubServiceException;
 import com.demo.githubapi.model.dto.BranchResponseDto;
 import com.demo.githubapi.model.dto.RepositoryResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
@@ -16,12 +17,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class GitHubService {
 
     private final GitHub gitHub;
 
     @Autowired
-    public GitHubService(GitHub gitHub) {
+    public GitHubService(final GitHub gitHub) {
         this.gitHub = gitHub;
     }
 
@@ -29,11 +31,17 @@ public class GitHubService {
         try {
             GHUser user = gitHub.getMyself().getLogin().equals(login) ? gitHub.getMyself() : gitHub.getUser(login);
             Map<String, GHRepository> ghRepositoryMap = user.getRepositories();
-            return ghRepositoryMap.values()
+
+            List<RepositoryResponseDto> repositories = ghRepositoryMap.values()
                     .parallelStream()
                     .filter(ghRepository -> !ghRepository.isFork())
+                    .filter(ghRepository -> getOwnerLogin(ghRepository).equals(login))
                     .map(this::prepareRepositoryResponseDto)
-                    .collect(Collectors.toList());
+                    .toList();
+
+            log.info("[{}] not forked repositories found for login [{}]", repositories.size(), login);
+
+            return repositories;
         } catch (IOException e) {
             if (e.getMessage().toUpperCase().contains("NOT FOUND")) {
                 throw new GHFileNotFoundException("Given login [" + login + "] does not exist.");
@@ -42,19 +50,15 @@ public class GitHubService {
         }
     }
 
-    RepositoryResponseDto prepareRepositoryResponseDto(final GHRepository ghRepository) {
-        try {
-            return RepositoryResponseDto.builder()
-                    .repositoryName(ghRepository.getName())
-                    .ownerLogin(ghRepository.getOwner().getLogin())
-                    .branches(prepareBranchResponseDtos(ghRepository))
-                    .build();
-        } catch (IOException e) {
-            throw new GitHubServiceException("There was a problem reading repository owner.");
-        }
+    private RepositoryResponseDto prepareRepositoryResponseDto(final GHRepository ghRepository) {
+        return RepositoryResponseDto.builder()
+                .repositoryName(ghRepository.getName())
+                .ownerLogin(getOwnerLogin(ghRepository))
+                .branches(prepareBranchResponseDtos(ghRepository))
+                .build();
     }
 
-    List<BranchResponseDto> prepareBranchResponseDtos(final GHRepository ghRepository) {
+    private List<BranchResponseDto> prepareBranchResponseDtos(final GHRepository ghRepository) {
         try {
             return ghRepository.getBranches().entrySet()
                     .stream()
@@ -66,6 +70,14 @@ public class GitHubService {
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new GitHubServiceException("There was a problem reading branches.");
+        }
+    }
+
+    private String getOwnerLogin(final GHRepository ghRepository) {
+        try {
+            return ghRepository.getOwner().getLogin();
+        } catch (IOException e) {
+            throw new GitHubServiceException("There was a problem reading repository owner.");
         }
     }
 }
