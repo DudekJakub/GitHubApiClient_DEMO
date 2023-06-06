@@ -1,13 +1,11 @@
 package com.demo.githubapi.integration;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -17,7 +15,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** For the purpose of integration tests, a special GitHub test user was created.
  * Only the author of the application - Dudek Jakub has access to the test user.
- * The test user is not subject to any modifications.*/
+ * The test user is not subject to any modifications.
+ * LINK TO ACCOUNT: https://github.com/TestAccountUser1?tab=repositories
+ * */
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,7 +31,7 @@ class GitHubControllerTests {
     @Test
     void testGetUserNotForkedRepositoriesByUserLogin_withAcceptableMediaTypeJSON_shouldReturnOk() throws Exception {
         //When/Then
-        mockMvc.perform(get("/api/github/repositories/user/" + realTestUserLogin)
+        mockMvc.perform(get("/api/github/user/" + realTestUserLogin + "/repositories")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -48,7 +48,7 @@ class GitHubControllerTests {
     @Test
     void testGetUserNotForkedRepositoriesByUserLogin_withUnacceptableMediaTypeXML_shouldReturnNotAcceptable() throws Exception {
         //When/Then
-        mockMvc.perform(get("/api/github/repositories/user/" + realTestUserLogin)
+        mockMvc.perform(get("/api/github/user/" + realTestUserLogin + "/repositories")
                         .accept(MediaType.APPLICATION_XML))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -60,7 +60,7 @@ class GitHubControllerTests {
     void testGetUserNotForkedRepositoriesByUserLogin_withNotExistingUserLogin_shouldReturnNotFound() throws Exception {
         //When/Then
         String randomNoneExistentLogin = UUID.randomUUID().toString();
-        mockMvc.perform(get("/api/github/repositories/user/" + randomNoneExistentLogin)
+        mockMvc.perform(get("/api/github/user/" + randomNoneExistentLogin + "/repositories")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
