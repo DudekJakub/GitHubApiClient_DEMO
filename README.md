@@ -27,6 +27,10 @@ This is a side solution to the functional requirements listed below.
 
 <br>
 
+Result endpoint is available under following url: `http://localhost:8080/api/github/user/LOGIN/repositories` - where login is user to find.
+
+<br>
+
 Due to lack of time this ReadMe will be completed on the day 09.08.2023.
 <br>
 For now please visit main solution here:
