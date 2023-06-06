@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 @Configuration
 @Slf4j
 public class GitHubClientConfig {
 
-    @Value("${GITHUB_JWT}")
+    @Value("${GITHUB_TOKEN}")
     private String githubToken;
 
     @Bean
@@ -24,7 +25,7 @@ public class GitHubClientConfig {
                     .build();
         } catch (IOException e) {
             log.error("Error occurred while creating GitHub instance", e);
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 }
