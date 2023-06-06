@@ -1,4 +1,14 @@
 # GitHubApiClient_Kohsuke_DEMO
+
+## AUTHOR: JAKUB DUDEK
+
+<br>
+
+In case of any questions, I am available at the e-mail `jakub.dudek94@gmail.com` and no. phone `+48 783 963 469`.
+
+<br>
+
+## ABOUT:
 This is a demo application that uses the `kohsuke` library to connect to the GitHub Rest API and retrieve data on the user's repositories.
 
 <br>
@@ -17,7 +27,7 @@ This is a side solution to the functional requirements listed below.
 
 <br>
 
-Due to lack of time this ReadMe will be completed on the day 09.08.2023. 
+Due to lack of time this ReadMe will be completed on the day 09.08.2023.
 <br>
 For now please visit main solution here:
 <br>
