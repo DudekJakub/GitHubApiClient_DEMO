@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final MediaType defaultMediaType = MediaType.APPLICATION_JSON;
+    private static final MediaType defaultMediaType = MediaType.APPLICATION_JSON;
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     public ResponseEntity<ExceptionDto> handleWrongMediaTypeException(HttpMediaTypeNotAcceptableException e) {
